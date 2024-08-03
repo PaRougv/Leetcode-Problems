@@ -105,6 +105,12 @@
             padding: 10px;
             margin: 10px 0;
             box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .modal textarea {
+            resize: vertical;
         }
 
         .modal button {
@@ -132,6 +138,8 @@
         .question h3 {
             margin: 0;
             cursor: pointer;
+            display: flex;
+            justify-content: space-between;
         }
 
         .content {
@@ -141,6 +149,35 @@
 
         .content p, .content pre {
             margin: 10px 0;
+        }
+
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #e8e8e8;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .delete-button {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 0.5em 1em;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .delete-button:hover {
+            background-color: darkred;
         }
     </style>
 </head>
@@ -203,6 +240,7 @@
             const questionTitle = document.createElement('h3');
             questionTitle.textContent = title;
             questionTitle.onclick = toggleContent;
+            questionTitle.appendChild(createDeleteButton(questionDiv));
             questionDiv.appendChild(questionTitle);
 
             const contentDiv = document.createElement('div');
@@ -217,13 +255,26 @@
             contentDiv.appendChild(algorithmPre);
 
             const codePre = document.createElement('pre');
-            codePre.textContent = code;
+            const codeBlock = document.createElement('code');
+            codeBlock.textContent = code;
+            codePre.appendChild(codeBlock);
             contentDiv.appendChild(codePre);
 
             questionDiv.appendChild(contentDiv);
             document.getElementById('questions').appendChild(questionDiv);
 
             closeModal();
+        }
+
+        function createDeleteButton(questionDiv) {
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.className = 'delete-button';
+            deleteButton.onclick = function(event) {
+                event.stopPropagation();
+                questionDiv.remove();
+            };
+            return deleteButton;
         }
 
         window.onclick = function(event) {
