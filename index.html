@@ -189,7 +189,7 @@
         <section>
             <h2>Questions</h2>
             <div id="questions">
-                <!-- Add your questions, notes, and algorithms here -->
+                <!-- Questions will be dynamically loaded here -->
             </div>
             <button class="edit-button" onclick="openModal()">Add/Edit Question</button>
         </section>
@@ -211,6 +211,27 @@
     </div>
 
     <script>
+        // Load existing questions from local storage
+        function loadQuestions() {
+            const questions = JSON.parse(localStorage.getItem('questions')) || [];
+            questions.forEach(question => {
+                addQuestionToPage(question);
+            });
+        }
+
+        function saveQuestions() {
+            const questions = [];
+            document.querySelectorAll('.question').forEach(questionDiv => {
+                const title = questionDiv.querySelector('h3').textContent;
+                const note = questionDiv.querySelector('.content p').textContent;
+                const algorithm = questionDiv.querySelector('.content pre').textContent;
+                const code = questionDiv.querySelector('.content code').textContent;
+
+                questions.push({ title, note, algorithm, code });
+            });
+            localStorage.setItem('questions', JSON.stringify(questions));
+        }
+
         function toggleContent(event) {
             const content = event.currentTarget.nextElementSibling;
             content.style.display = content.style.display === 'block' ? 'none' : 'block';
@@ -234,11 +255,24 @@
             const algorithm = document.getElementById('questionAlgorithm').value;
             const code = document.getElementById('questionCode').value;
 
+            const question = {
+                title,
+                note,
+                algorithm,
+                code
+            };
+
+            addQuestionToPage(question);
+            saveQuestions();
+            closeModal();
+        }
+
+        function addQuestionToPage(question) {
             const questionDiv = document.createElement('div');
             questionDiv.className = 'question';
 
             const questionTitle = document.createElement('h3');
-            questionTitle.textContent = title;
+            questionTitle.textContent = question.title;
             questionTitle.onclick = toggleContent;
             questionTitle.appendChild(createDeleteButton(questionDiv));
             questionDiv.appendChild(questionTitle);
@@ -247,23 +281,21 @@
             contentDiv.className = 'content';
 
             const notePara = document.createElement('p');
-            notePara.textContent = note;
+            notePara.textContent = question.note;
             contentDiv.appendChild(notePara);
 
             const algorithmPre = document.createElement('pre');
-            algorithmPre.textContent = algorithm;
+            algorithmPre.textContent = question.algorithm;
             contentDiv.appendChild(algorithmPre);
 
             const codePre = document.createElement('pre');
             const codeBlock = document.createElement('code');
-            codeBlock.textContent = code;
+            codeBlock.textContent = question.code;
             codePre.appendChild(codeBlock);
             contentDiv.appendChild(codePre);
 
             questionDiv.appendChild(contentDiv);
             document.getElementById('questions').appendChild(questionDiv);
-
-            closeModal();
         }
 
         function createDeleteButton(questionDiv) {
@@ -273,9 +305,12 @@
             deleteButton.onclick = function(event) {
                 event.stopPropagation();
                 questionDiv.remove();
+                saveQuestions();
             };
             return deleteButton;
         }
+
+        window.onload = loadQuestions;
 
         window.onclick = function(event) {
             const modal = document.getElementById('myModal');
@@ -286,3 +321,4 @@
     </script>
 </body>
 </html>
+
